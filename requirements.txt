@@ -1,0 +1,3 @@
+## Shared local development dependencies
+-r backend/requirements.txt
+-r voice-module/requirements.txt

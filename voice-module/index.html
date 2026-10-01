@@ -1,0 +1,2376 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PocketCFO - Smart Transaction Categorization</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+        color: #e5e7eb;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        min-height: 100vh;
+        padding: 0;
+      }
+
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 250px;
+        height: 100vh;
+        background: #0f1419;
+        border-right: 1px solid #1f2937;
+        padding: 20px;
+        overflow-y: auto;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 30px;
+        font-size: 20px;
+        font-weight: 700;
+        color: #fff;
+      }
+
+      .logo-icon {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, #00d4aa 0%, #00b899 100%);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+      }
+
+      .nav-section {
+        margin-bottom: 30px;
+      }
+
+      .nav-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #6b7280;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+        display: block;
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-bottom: 4px;
+        transition: all 0.2s ease;
+        color: #9ca3af;
+        text-decoration: none;
+      }
+
+      .nav-item:hover {
+        background: #1f2937;
+        color: #fff;
+      }
+
+      .nav-item.active {
+        background: #1f3a4d;
+        color: #00d4aa;
+        font-weight: 600;
+      }
+
+      .nav-item-icon {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .main-content {
+        margin-left: 250px;
+        padding: 30px;
+        max-width: 1400px;
+        margin-right: auto;
+      }
+
+      .page-section {
+        display: none;
+      }
+
+      .page-section.active {
+        display: block;
+      }
+
+      /* Input Section */
+      .input-section {
+        background: linear-gradient(135deg, #1a1f3a 0%, #23293f 100%);
+        border: 1px solid #2d3748;
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .input-section h1 {
+        font-size: 28px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .input-section h1 .icon {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+      }
+
+      .input-area {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      #input-text {
+        width: 100%;
+        min-height: 100px;
+        padding: 12px 16px;
+        background: #0a0e27;
+        border: 1px solid #374151;
+        border-radius: 8px;
+        color: #fff;
+        font-family: "Menlo", "Monaco", monospace;
+        font-size: 14px;
+        resize: vertical;
+        transition: border-color 0.2s ease;
+      }
+
+      #input-text:focus {
+        outline: none;
+        border-color: #00d4aa;
+        box-shadow: 0 0 0 3px rgba(0, 212, 170, 0.1);
+      }
+
+      #input-text::placeholder {
+        color: #6b7280;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        padding: 10px 16px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+      }
+
+      #parse-btn {
+        background: linear-gradient(135deg, #00d4aa 0%, #00b899 100%);
+        color: #000;
+        flex: 1;
+        min-width: 120px;
+        justify-content: center;
+      }
+
+      #parse-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(0, 212, 170, 0.3);
+      }
+
+      #parse-btn:active {
+        transform: translateY(0);
+      }
+
+      #mic-btn {
+        background: #475569;
+        color: #fff;
+        flex: 1;
+        min-width: 120px;
+        justify-content: center;
+      }
+
+      #mic-btn:hover {
+        background: #64748b;
+        transform: translateY(-2px);
+      }
+
+      #ai-chat-btn {
+        background: #9333ea;
+        color: #fff;
+        flex: 1;
+        min-width: 120px;
+        justify-content: center;
+      }
+
+      #ai-chat-btn:hover {
+        background: #a855f7;
+        transform: translateY(-2px);
+      }
+
+      .auto-save-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #9ca3af;
+        font-size: 14px;
+      }
+
+      /* Module 2 Section */
+      #module2-section {
+        display: block;
+      }
+
+      .section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        margin-top: 24px;
+      }
+
+      .section-title .icon {
+        width: 28px;
+        height: 28px;
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+      }
+
+      .section-subtitle {
+        color: #9ca3af;
+        font-size: 14px;
+        margin-bottom: 16px;
+      }
+
+      #personal-warning {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border-left: 4px solid #f59e0b;
+        padding: 12px 16px;
+        border-radius: 8px;
+        color: #92400e;
+        font-size: 13px;
+        margin-bottom: 16px;
+        display: none;
+      }
+
+      .summary-label {
+        font-weight: 600;
+        color: #d1d5db;
+        font-size: 13px;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      /* Category Cards */
+      #category-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+
+      .card {
+        background: linear-gradient(135deg, #1a1f3a 0%, #23293f 100%);
+        border: 1px solid #2d3748;
+        border-radius: 8px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        transition: all 0.2s ease;
+      }
+
+      .card:hover {
+        border-color: #00d4aa;
+        box-shadow: 0 8px 16px rgba(0, 212, 170, 0.1);
+      }
+
+      .card-desc {
+        font-weight: 600;
+        color: #fff;
+        font-size: 15px;
+      }
+
+      .card-bottom {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .card-amount {
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .card-amount.income {
+        color: #10b981;
+      }
+
+      .card-amount.expense {
+        color: #ef4444;
+      }
+
+      .badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        color: #fff;
+        font-weight: 600;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
+      .card-actions {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      .edit-btn,
+      .save-btn,
+      .cancel-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+        border-radius: 4px;
+        background: #374151;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .edit-btn:hover {
+        background: #475569;
+      }
+
+      .save-btn {
+        background: #10b981;
+      }
+
+      .save-btn:hover {
+        background: #059669;
+      }
+
+      .cancel-btn {
+        background: #6b7280;
+      }
+
+      .cancel-btn:hover {
+        background: #4b5563;
+      }
+
+      select {
+        padding: 6px 10px;
+        background: #0a0e27;
+        color: #fff;
+        border: 1px solid #374151;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+
+      .card-confidence {
+        height: 4px;
+        background: #1f2937;
+        border-radius: 2px;
+        overflow: hidden;
+      }
+
+      .confidence-bar {
+        height: 100%;
+        border-radius: 2px;
+        transition: width 0.3s ease;
+      }
+
+      /* Financial Summary */
+      #financial-summary {
+        display: block;
+        margin-bottom: 24px;
+      }
+
+      .summary-boxes {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .summary-box {
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        border: 1px solid #2d3748;
+      }
+
+      .summary-box .value {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: #fff;
+      }
+
+      .summary-box .label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #9ca3af;
+      }
+
+      #box-revenue {
+        background: linear-gradient(
+          135deg,
+          rgba(16, 185, 129, 0.1) 0%,
+          rgba(5, 150, 105, 0.05) 100%
+        );
+        border-color: #10b981;
+      }
+
+      #box-expenses {
+        background: linear-gradient(
+          135deg,
+          rgba(239, 68, 68, 0.1) 0%,
+          rgba(220, 38, 38, 0.05) 100%
+        );
+        border-color: #ef4444;
+      }
+
+      #box-profit {
+        background: linear-gradient(
+          135deg,
+          rgba(34, 197, 94, 0.1) 0%,
+          rgba(16, 185, 129, 0.05) 100%
+        );
+        border-color: #22c55e;
+      }
+
+      #box-balance {
+        background: linear-gradient(
+          135deg,
+          rgba(59, 130, 246, 0.1) 0%,
+          rgba(37, 99, 235, 0.05) 100%
+        );
+        border-color: #3b82f6;
+      }
+
+      #summary-insight {
+        padding: 12px 16px;
+        background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
+        border-radius: 8px;
+        color: #065f46;
+        font-weight: 500;
+        display: none;
+        margin-bottom: 16px;
+      }
+
+      #summary-insight.show {
+        display: block;
+      }
+
+      /* Category Summary Chart */
+      #summary-chart-section {
+        margin-bottom: 24px;
+      }
+
+      #summary-title {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      #summary-title .icon {
+        width: 24px;
+        height: 24px;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+      }
+
+      #summary-chart {
+        display: grid;
+        gap: 12px;
+      }
+
+      .summary-row {
+        display: grid;
+        grid-template-columns: 120px 1fr 80px;
+        gap: 12px;
+        align-items: center;
+        padding: 8px 0;
+      }
+
+      .summary-row > .summary-label {
+        margin-bottom: 0;
+      }
+
+      .summary-bar {
+        height: 24px;
+        background: #1f2937;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      .summary-bar .fill {
+        height: 100%;
+        border-radius: 12px;
+        transition: width 0.3s ease;
+      }
+
+      .summary-amount {
+        text-align: right;
+        font-weight: 600;
+        color: #fff;
+      }
+
+      /* Action Buttons */
+      .action-buttons {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+      }
+
+      #save-all-btn {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        color: #fff;
+        padding: 12px 24px;
+        font-size: 15px;
+        flex: 1;
+        min-width: 200px;
+        justify-content: center;
+      }
+
+      #save-all-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
+      }
+
+      #save-all-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .spinner {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border: 2px solid #f3f3f3;
+        border-top: 2px solid #00d4aa;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Output div - hidden for now */
+      #output {
+        display: none;
+      }
+
+      .chat-modal {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.65);
+        z-index: 1000;
+      }
+
+      .chat-modal.open {
+        display: flex;
+      }
+
+      .chat-panel {
+        display: flex;
+        flex-direction: column;
+        width: min(560px, 100%);
+        height: min(680px, 90vh);
+        background: #111827;
+        border: 1px solid #374151;
+        border-radius: 12px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+      }
+
+      .chat-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 20px;
+        border-bottom: 1px solid #374151;
+      }
+
+      .chat-header h2 {
+        margin: 0;
+        color: #fff;
+        font-size: 18px;
+      }
+
+      .chat-close {
+        padding: 4px 8px;
+        background: transparent;
+        color: #9ca3af;
+        font-size: 20px;
+      }
+
+      .chat-close:hover {
+        color: #fff;
+      }
+
+      #chat-messages {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        overflow-y: auto;
+        padding: 20px;
+      }
+
+      .chat-message {
+        max-width: 85%;
+        padding: 10px 12px;
+        border-radius: 10px;
+        line-height: 1.45;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .chat-message.user {
+        align-self: flex-end;
+        background: #00b899;
+        color: #06110f;
+      }
+
+      .chat-message.ai {
+        align-self: flex-start;
+        background: #1f2937;
+        color: #e5e7eb;
+      }
+
+      .chat-form {
+        display: flex;
+        gap: 10px;
+        padding: 16px;
+        border-top: 1px solid #374151;
+      }
+
+      #chat-input {
+        flex: 1;
+        min-width: 0;
+        padding: 10px 12px;
+        border: 1px solid #4b5563;
+        border-radius: 8px;
+        background: #0a0e27;
+        color: #fff;
+      }
+
+      #chat-send {
+        background: #00d4aa;
+        color: #06110f;
+      }
+
+      #chat-send:disabled {
+        cursor: wait;
+        opacity: 0.6;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .sidebar {
+          position: relative;
+          width: 100%;
+          height: auto;
+          border-right: none;
+          border-bottom: 1px solid #1f2937;
+          margin-bottom: 20px;
+        }
+
+        .main-content {
+          margin-left: 0;
+          padding: 20px;
+        }
+
+        #category-cards {
+          grid-template-columns: 1fr;
+        }
+
+        .summary-boxes {
+          grid-template-columns: 1fr;
+        }
+
+        .button-group {
+          flex-direction: column;
+        }
+
+        .summary-row {
+          grid-template-columns: 100px 1fr 60px;
+        }
+      }
+
+      #auth-gate {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: rgba(10, 14, 39, 0.96);
+      }
+
+      #auth-gate.is-hidden {
+        display: none;
+      }
+
+      .auth-card {
+        width: min(100%, 420px);
+        padding: 28px;
+        background: #1a1f3a;
+        border: 1px solid #374151;
+        border-radius: 12px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+      }
+
+      .auth-card h1 {
+        margin-bottom: 8px;
+        color: #fff;
+      }
+
+      .auth-card p {
+        margin-bottom: 20px;
+        color: #9ca3af;
+      }
+
+      .auth-card label {
+        display: block;
+        margin: 12px 0 6px;
+        color: #d1d5db;
+        font-size: 14px;
+      }
+
+      .auth-card input {
+        width: 100%;
+        padding: 11px 12px;
+        border: 1px solid #4b5563;
+        border-radius: 8px;
+        background: #0a0e27;
+        color: #fff;
+      }
+
+      .auth-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      .auth-actions button {
+        flex: 1;
+        justify-content: center;
+      }
+
+      #auth-login {
+        background: #00d4aa;
+        color: #06110f;
+      }
+
+      #auth-signup {
+        background: #374151;
+        color: #fff;
+      }
+
+      #auth-logout {
+        width: 100%;
+        justify-content: center;
+        background: #374151;
+        color: #fff;
+      }
+
+      #auth-message {
+        min-height: 20px;
+        margin-top: 14px;
+        color: #fbbf24;
+        font-size: 14px;
+      }
+
+      #auth-account {
+        margin-top: 12px;
+        color: #9ca3af;
+        font-size: 12px;
+        overflow-wrap: anywhere;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="auth-gate" role="dialog" aria-labelledby="auth-title">
+      <div class="auth-card">
+        <h1 id="auth-title">PocketCFO</h1>
+        <p>Sign in to securely access your transactions and AI assistant.</p>
+        <form id="auth-form">
+          <label for="auth-email">Email</label>
+          <input id="auth-email" type="email" autocomplete="email" required />
+          <label for="auth-password">Password</label>
+          <input id="auth-password" type="password" autocomplete="current-password" minlength="6" required />
+          <div class="auth-actions">
+            <button id="auth-login" type="submit">Login</button>
+            <button id="auth-signup" type="button">Sign up</button>
+          </div>
+        </form>
+        <div id="auth-message" role="status" aria-live="polite">Loading secure sign-in...</div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="logo">
+        <div class="logo-icon">💧</div>
+        <span>CFO</span>
+      </div>
+      <div id="auth-account"></div>
+      <button id="auth-logout" type="button" hidden>Logout</button>
+
+      <div class="nav-section">
+        <span class="nav-label">Main</span>
+        <a class="nav-item active" onclick="switchPage('dashboard')">
+          <div class="nav-item-icon">📊</div>
+          <span>Dashboard</span>
+        </a>
+        <a class="nav-item" onclick="switchPage('categories')">
+          <div class="nav-item-icon">🏷️</div>
+          <span>Categories</span>
+        </a>
+        <a class="nav-item" onclick="switchPage('transactions')">
+          <div class="nav-item-icon">📋</div>
+          <span>Transactions</span>
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <span class="nav-label">Tools</span>
+        <a class="nav-item" onclick="openAIChat()">
+          <div class="nav-item-icon">💬</div>
+          <span>AI Chat</span>
+        </a>
+        <a class="nav-item" onclick="openVoiceInput()">
+          <div class="nav-item-icon">🎤</div>
+          <span>Voice Input</span>
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <span class="nav-label">Data</span>
+        <a class="nav-item" onclick="exportCSV()">
+          <div class="nav-item-icon">📥</div>
+          <span>Export CSV</span>
+        </a>
+        <a class="nav-item" onclick="exportPDF()">
+          <div class="nav-item-icon">📄</div>
+          <span>Export PDF</span>
+        </a>
+      </div>
+    </div>
+
+    <div id="chat-modal" class="chat-modal" role="dialog" aria-modal="true" aria-labelledby="chat-title">
+      <div class="chat-panel">
+        <div class="chat-header">
+          <h2 id="chat-title">PocketCFO AI Chat</h2>
+          <button class="chat-close" type="button" onclick="closeAIChat()" aria-label="Close chat">×</button>
+        </div>
+        <div id="chat-messages" aria-live="polite">
+          <div class="chat-message ai">Hi. How can I help?</div>
+        </div>
+        <form class="chat-form" onsubmit="sendChatMessage(event)">
+          <input id="chat-input" type="text" placeholder="Ask PocketCFO..." autocomplete="off" maxlength="4000" />
+          <button id="chat-send" type="submit">Send</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Dashboard Page -->
+      <div id="dashboard" class="page-section active">
+        <!-- Input Section -->
+        <div class="input-section">
+          <h1><span class="icon">💼</span> PocketCFO — Smart Categorization</h1>
+          <div class="input-area">
+            <textarea
+              id="input-text"
+              placeholder="Type anything... e.g. bought flour for 200 and sold cakes for 500"
+            ></textarea>
+            <div class="button-group">
+              <button id="parse-btn" onclick="parseText()">✓ PARSE</button>
+              <button id="mic-btn" onclick="startVoiceInput()">🎤 VOICE</button>
+              <button id="ai-chat-btn" onclick="openAIChat()">
+                💬 AI CHAT
+              </button>
+              <span class="auto-save-toggle">
+                <input
+                  type="checkbox"
+                  id="auto-save-check"
+                  checked
+                  style="margin: 0; cursor: pointer"
+                />
+                Auto-save
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Module 2 Section -->
+        <div id="module2-section">
+          <div class="section-title">
+            <span class="icon">⚙️</span>
+            Smart Categories
+          </div>
+          <div class="section-subtitle">
+            AI has auto-categorized your transactions
+          </div>
+
+          <div id="personal-warning"></div>
+
+          <div class="summary-label" id="summary-label">📌 Current Batch</div>
+
+          <div id="category-cards"></div>
+
+          <!-- Financial Summary -->
+          <div id="financial-summary">
+            <div class="section-title">
+              <span class="icon">🏦</span>
+              Financial Summary
+            </div>
+            <div class="summary-boxes">
+              <div class="summary-box" id="box-revenue">
+                <div class="value">₹0</div>
+                <div class="label">Total Revenue</div>
+              </div>
+              <div class="summary-box" id="box-expenses">
+                <div class="value">₹0</div>
+                <div class="label">Total Expenses</div>
+              </div>
+              <div class="summary-box" id="box-profit">
+                <div class="value">₹0</div>
+                <div class="label">Net Profit / Loss</div>
+              </div>
+              <div class="summary-box" id="box-balance">
+                <div class="value">₹0</div>
+                <div class="label">Balance in Hand</div>
+              </div>
+            </div>
+            <div id="summary-insight"></div>
+          </div>
+
+          <!-- Save Button -->
+          <div class="action-buttons">
+            <button id="save-all-btn">💾 SAVE ALL TRANSACTIONS</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transactions Page -->
+      <div id="transactions" class="page-section">
+        <div class="section-title">
+          <span class="icon">📋</span>
+          Transaction Management
+        </div>
+        <p class="section-subtitle">
+          View, search, filter, edit, and export all your transactions
+        </p>
+
+        <!-- Export Buttons -->
+        <div style="margin: 20px 0; display: flex; gap: 12px">
+          <button
+            onclick="exportCSV()"
+            style="
+              background: linear-gradient(135deg, #00d4aa 0%, #00b899 100%);
+              color: #000;
+              padding: 10px 20px;
+              border: none;
+              border-radius: 8px;
+              cursor: pointer;
+              font-weight: 600;
+            "
+          >
+            📥 EXPORT CSV
+          </button>
+          <button
+            onclick="exportPDF()"
+            style="
+              background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+              color: #fff;
+              padding: 10px 20px;
+              border: none;
+              border-radius: 8px;
+              cursor: pointer;
+              font-weight: 600;
+            "
+          >
+            📄 EXPORT PDF
+          </button>
+          <button
+            onclick="loadTransactions()"
+            style="
+              background: #1f2937;
+              color: #fff;
+              padding: 10px 20px;
+              border: none;
+              border-radius: 8px;
+              cursor: pointer;
+              font-weight: 600;
+            "
+          >
+            🔄 REFRESH
+          </button>
+        </div>
+
+        <!-- Filters -->
+        <div
+          style="
+            background: #1a1f3a;
+            border: 1px solid #2d3748;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+          "
+        >
+          <div
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+              gap: 16px;
+            "
+          >
+            <div>
+              <label
+                style="
+                  display: block;
+                  margin-bottom: 8px;
+                  color: #9ca3af;
+                  font-size: 14px;
+                "
+                >Search</label
+              >
+              <input
+                type="text"
+                id="filter-search"
+                placeholder="Search description..."
+                style="
+                  width: 100%;
+                  padding: 8px 12px;
+                  background: #0a0e27;
+                  border: 1px solid #374151;
+                  border-radius: 6px;
+                  color: #fff;
+                "
+              />
+            </div>
+            <div>
+              <label
+                style="
+                  display: block;
+                  margin-bottom: 8px;
+                  color: #9ca3af;
+                  font-size: 14px;
+                "
+                >Category</label
+              >
+              <select
+                id="filter-category"
+                style="
+                  width: 100%;
+                  padding: 8px 12px;
+                  background: #0a0e27;
+                  border: 1px solid #374151;
+                  border-radius: 6px;
+                  color: #fff;
+                "
+              >
+                <option value="">All Categories</option>
+              </select>
+            </div>
+            <div>
+              <label
+                style="
+                  display: block;
+                  margin-bottom: 8px;
+                  color: #9ca3af;
+                  font-size: 14px;
+                "
+                >Type</label
+              >
+              <select
+                id="filter-type"
+                style="
+                  width: 100%;
+                  padding: 8px 12px;
+                  background: #0a0e27;
+                  border: 1px solid #374151;
+                  border-radius: 6px;
+                  color: #fff;
+                "
+              >
+                <option value="">All Types</option>
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+              </select>
+            </div>
+            <div>
+              <label
+                style="
+                  display: block;
+                  margin-bottom: 8px;
+                  color: #9ca3af;
+                  font-size: 14px;
+                "
+                >Start Date</label
+              >
+              <input
+                type="date"
+                id="filter-start-date"
+                style="
+                  width: 100%;
+                  padding: 8px 12px;
+                  background: #0a0e27;
+                  border: 1px solid #374151;
+                  border-radius: 6px;
+                  color: #fff;
+                "
+              />
+            </div>
+            <div>
+              <label
+                style="
+                  display: block;
+                  margin-bottom: 8px;
+                  color: #9ca3af;
+                  font-size: 14px;
+                "
+                >End Date</label
+              >
+              <input
+                type="date"
+                id="filter-end-date"
+                style="
+                  width: 100%;
+                  padding: 8px 12px;
+                  background: #0a0e27;
+                  border: 1px solid #374151;
+                  border-radius: 6px;
+                  color: #fff;
+                "
+              />
+            </div>
+            <div style="display: flex; align-items: flex-end">
+              <button
+                onclick="loadTransactions()"
+                style="
+                  width: 100%;
+                  background: #00d4aa;
+                  color: #000;
+                  padding: 8px 12px;
+                  border: none;
+                  border-radius: 6px;
+                  cursor: pointer;
+                  font-weight: 600;
+                "
+              >
+                APPLY FILTERS
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Transactions Table -->
+        <div
+          style="
+            background: #1a1f3a;
+            border: 1px solid #2d3748;
+            border-radius: 12px;
+            overflow: hidden;
+          "
+        >
+          <div id="transactions-table" style="overflow-x: auto">
+            <table style="width: 100%; border-collapse: collapse">
+              <thead>
+                <tr
+                  style="background: #0f1419; border-bottom: 1px solid #2d3748"
+                >
+                  <th
+                    style="
+                      padding: 12px;
+                      text-align: left;
+                      color: #9ca3af;
+                      font-weight: 600;
+                    "
+                  >
+                    Date
+                  </th>
+                  <th
+                    style="
+                      padding: 12px;
+                      text-align: left;
+                      color: #9ca3af;
+                      font-weight: 600;
+                    "
+                  >
+                    Description
+                  </th>
+                  <th
+                    style="
+                      padding: 12px;
+                      text-align: left;
+                      color: #9ca3af;
+                      font-weight: 600;
+                    "
+                  >
+                    Category
+                  </th>
+                  <th
+                    style="
+                      padding: 12px;
+                      text-align: left;
+                      color: #9ca3af;
+                      font-weight: 600;
+                    "
+                  >
+                    Type
+                  </th>
+                  <th
+                    style="
+                      padding: 12px;
+                      text-align: right;
+                      color: #9ca3af;
+                      font-weight: 600;
+                    "
+                  >
+                    Amount
+                  </th>
+                  <th
+                    style="
+                      padding: 12px;
+                      text-align: center;
+                      color: #9ca3af;
+                      font-weight: 600;
+                    "
+                  >
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="transactions-tbody">
+                <tr>
+                  <td
+                    colspan="6"
+                    style="padding: 40px; text-align: center; color: #6b7280"
+                  >
+                    Loading transactions...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div
+            id="transactions-pagination"
+            style="
+              padding: 16px;
+              border-top: 1px solid #2d3748;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <div id="transactions-info" style="color: #9ca3af"></div>
+            <div
+              id="transactions-buttons"
+              style="display: flex; gap: 8px"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories Page -->
+      <div id="categories" class="page-section">
+        <div class="section-title">
+          <span class="icon">🏷️</span>
+          Categories
+        </div>
+        <p class="section-subtitle">View and manage all categories</p>
+
+        <!-- Category Summary -->
+        <div id="summary-chart-section">
+          <div id="summary-title">
+            <span class="icon">📊</span>
+            Spending by Category
+          </div>
+          <div id="summary-chart"></div>
+        </div>
+
+        <div
+          id="categories-grid"
+          style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+          "
+        >
+          <!-- Categories will be loaded here -->
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+    <script>
+      // Configuration
+      const BACKEND_URL = `${window.location.protocol}//${window.location.hostname}:8000`;
+      const VOICE_URL = `${window.location.protocol}//${window.location.hostname}:5000`;
+      let supabaseClient = null;
+      let currentSession = null;
+      let authInitialized = false;
+
+      function backendHeaders() {
+        const headers = { "Content-Type": "application/json" };
+        if (currentSession?.access_token) {
+          headers.Authorization = `Bearer ${currentSession.access_token}`;
+        }
+        return headers;
+      }
+
+      function setAuthMessage(message, isError = false) {
+        const element = document.getElementById("auth-message");
+        element.textContent = message;
+        element.style.color = isError ? "#fca5a5" : "#fbbf24";
+      }
+
+      function updateAuthUI(session) {
+        currentSession = session;
+        const gate = document.getElementById("auth-gate");
+        const account = document.getElementById("auth-account");
+        const logout = document.getElementById("auth-logout");
+        const loggedIn = Boolean(session?.access_token);
+
+        gate.classList.toggle("is-hidden", loggedIn);
+        logout.hidden = !loggedIn;
+        account.textContent = loggedIn ? `Signed in as ${session.user.email}` : "";
+        if (loggedIn) {
+          setAuthMessage("Signed in securely.");
+        }
+      }
+
+      async function signOutUser(message = "") {
+        currentSession = null;
+        currentTransactions = [];
+        if (supabaseClient) await supabaseClient.auth.signOut();
+        updateAuthUI(null);
+        if (message) setAuthMessage(message, true);
+      }
+
+      async function initializeAuth() {
+        try {
+          const configResponse = await fetch(`${VOICE_URL}/auth/config`);
+          const config = await configResponse.json();
+          if (!configResponse.ok || !config.success) {
+            throw new Error(config.message || "Supabase authentication is not configured.");
+          }
+
+          supabaseClient = window.supabase.createClient(
+            config.supabase_url,
+            config.supabase_anon_key,
+            { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } },
+          );
+
+          supabaseClient.auth.onAuthStateChange((event, session) => {
+            updateAuthUI(session);
+            if (event === "SIGNED_OUT") {
+              currentTransactions = [];
+            }
+          });
+
+          const { data, error } = await supabaseClient.auth.getSession();
+          if (error) throw error;
+          updateAuthUI(data.session);
+          authInitialized = true;
+          if (data.session) {
+            await Promise.all([fetchOverallSummary(), loadCategorySummary()]);
+          }
+        } catch (error) {
+          setAuthMessage(error.message || "Unable to initialize Supabase authentication.", true);
+        }
+      }
+
+      async function login(event) {
+        event.preventDefault();
+        if (!supabaseClient) return setAuthMessage("Authentication is still loading.", true);
+        const email = document.getElementById("auth-email").value.trim();
+        const password = document.getElementById("auth-password").value;
+        setAuthMessage("Signing in...");
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+        if (error) setAuthMessage(error.message, true);
+        if (!error && data.session) {
+          await Promise.all([fetchOverallSummary(), loadCategorySummary()]);
+        }
+      }
+
+      async function signup() {
+        if (!supabaseClient) return setAuthMessage("Authentication is still loading.", true);
+        const email = document.getElementById("auth-email").value.trim();
+        const password = document.getElementById("auth-password").value;
+        setAuthMessage("Creating your account...");
+        const { data, error } = await supabaseClient.auth.signUp({ email, password });
+        if (error) return setAuthMessage(error.message, true);
+        if (!data.session) {
+          setAuthMessage("Account created. Check your email to confirm your account, then log in.");
+        }
+      }
+
+      function apiErrorMessage(response, data, fallback) {
+        const detail = data?.detail;
+        if (typeof detail === "string" && detail.trim()) return detail;
+        if (detail?.message) return detail.message;
+        if (data?.message) return data.message;
+        if (response.status === 401) return "Session expired. Please login again.";
+        if (response.status === 403) return "You are not allowed to access this data.";
+        if (response.status === 404) return "The requested transaction was not found.";
+        if (response.status === 422) return "Please check the transaction fields and try again.";
+        if (response.status >= 500) return "The PocketCFO server could not complete the request.";
+        return fallback;
+      }
+
+      async function readApiResponse(response, fallback) {
+        let data = {};
+        try {
+          data = await response.json();
+        } catch (error) {
+          data = {};
+        }
+        if (!response.ok) {
+          if (response.status === 401) {
+            await signOutUser("Session expired. Please login again.");
+          }
+          throw new Error(apiErrorMessage(response, data, fallback));
+        }
+        return data;
+      }
+
+      const CATEGORY_COLORS = {
+        Revenue: "#00d4aa",
+        Inventory: "#3b82f6",
+        Utilities: "#f59e0b",
+        Rent: "#7c3aed",
+        Personal: "#ef4444",
+        Transport: "#f97316",
+        Salaries: "#6366f1",
+        Food: "#ec4899",
+        Maintenance: "#84cc16",
+        Other: "#6b7280",
+      };
+
+      let currentTransactions = [];
+
+      function switchPage(pageName) {
+        document
+          .querySelectorAll(".page-section")
+          .forEach((el) => el.classList.remove("active"));
+        document.getElementById(pageName).classList.add("active");
+
+        document
+          .querySelectorAll(".nav-item")
+          .forEach((el) => el.classList.remove("active"));
+
+        const evt = window.event;
+        const clickedItem = evt?.target?.closest(".nav-item");
+        if (clickedItem) {
+          clickedItem.classList.add("active");
+        } else {
+          const fallbackItem = document.querySelector(
+            `.nav-item[onclick*="'${pageName}'"]`,
+          );
+          fallbackItem?.classList.add("active");
+        }
+
+        if (pageName === "transactions") {
+          loadTransactions();
+        } else if (pageName === "categories") {
+          loadCategoriesPage();
+        }
+      }
+
+      function openAIChat() {
+        document.getElementById("chat-modal").classList.add("open");
+        document.getElementById("chat-input").focus();
+      }
+
+      function closeAIChat() {
+        document.getElementById("chat-modal").classList.remove("open");
+      }
+
+      function addChatMessage(content, role) {
+        const message = document.createElement("div");
+        message.className = `chat-message ${role}`;
+        if (role === "ai") {
+          message.innerHTML = DOMPurify.sanitize(marked.parse(content));
+        } else {
+          message.textContent = content;
+        }
+        document.getElementById("chat-messages").appendChild(message);
+        message.scrollIntoView({ behavior: "smooth", block: "end" });
+      }
+
+      async function sendChatMessage(event) {
+        event.preventDefault();
+        const input = document.getElementById("chat-input");
+        const sendButton = document.getElementById("chat-send");
+        const message = input.value.trim();
+        if (!message) return;
+
+        addChatMessage(message, "user");
+        input.value = "";
+        input.disabled = true;
+        sendButton.disabled = true;
+        sendButton.textContent = "...";
+
+        try {
+          const response = await fetch(`${BACKEND_URL}/chat`, {
+            method: "POST",
+            headers: backendHeaders(),
+            body: JSON.stringify({ message }),
+          });
+          const data = await readApiResponse(response, "Chat request failed.");
+          addChatMessage(data.response, "ai");
+        } catch (error) {
+          addChatMessage(error.message || "Unable to reach the AI assistant.", "ai");
+        } finally {
+          input.disabled = false;
+          sendButton.disabled = false;
+          sendButton.textContent = "Send";
+          input.focus();
+        }
+      }
+
+      function openVoiceInput() {
+        switchPage("dashboard");
+        const inputEl = document.getElementById("input-text");
+        if (inputEl) {
+          inputEl.focus();
+        }
+        startVoiceInput();
+      }
+
+      async function parseText() {
+        const text = document.getElementById("input-text").value.trim();
+
+        if (!text) {
+          alert("⚠️ Please enter a transaction first!");
+          return;
+        }
+
+        const amountWords = [
+          "zero",
+          "one",
+          "two",
+          "three",
+          "four",
+          "five",
+          "six",
+          "seven",
+          "eight",
+          "nine",
+          "ten",
+          "twenty",
+          "thirty",
+          "forty",
+          "fifty",
+          "sixty",
+          "seventy",
+          "eighty",
+          "ninety",
+          "hundred",
+          "thousand",
+          "lakh",
+          "rupees",
+          "bucks",
+          "dollars",
+        ];
+        const hasNumber = /\d/.test(text);
+        const lower = text.toLowerCase();
+        const hasAmountWord = amountWords.some((w) => lower.includes(w));
+
+        if (!hasNumber && !hasAmountWord) {
+          alert(
+            '⚠️ Please include an amount in your transaction.\n\nExample: "bought flour for ₹200" or "sold cakes for 500"',
+          );
+          return;
+        }
+
+        if (text.length < 5) {
+          alert("⚠️ Please describe your transaction in more detail.");
+          return;
+        }
+
+        const greetings = [
+          "hi",
+          "hello",
+          "hey",
+          "ok",
+          "okay",
+          "yes",
+          "no",
+          "thanks",
+          "bye",
+          "good",
+          "bad",
+          "test",
+          "lol",
+          "haha",
+        ];
+        if (greetings.includes(lower)) {
+          alert(
+            '⚠️ That doesn\'t look like a transaction.\n\nTry: "sold 10 coffees for ₹300" or "paid rent ₹5000"',
+          );
+          return;
+        }
+
+        try {
+          const res = await fetch(`${VOICE_URL}/parse`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text }),
+          });
+          const data = await res.json();
+          const transactions = data.parsed || data.transactions || [];
+          if (transactions.length > 0) {
+            window.onParseResults(transactions);
+          }
+        } catch (err) {
+          alert("Error connecting to server: " + err.message);
+        }
+      }
+
+      function startVoiceInput() {
+        if (
+          !("webkitSpeechRecognition" in window) &&
+          !("SpeechRecognition" in window)
+        ) {
+          alert("Voice input not supported. Please use Chrome browser.");
+          return;
+        }
+
+        const SpeechRecognition =
+          window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+
+        recognition.lang = "en-IN";
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        const micBtn = document.getElementById("mic-btn");
+        micBtn.innerHTML = "🎤 Listening...";
+        micBtn.style.background = "#ef4444";
+        micBtn.disabled = true;
+
+        recognition.onresult = function (event) {
+          const transcript = event.results[0][0].transcript;
+          document.getElementById("input-text").value = transcript;
+          micBtn.innerHTML = "🎤 VOICE";
+          micBtn.style.background = "";
+          micBtn.disabled = false;
+          setTimeout(() => parseText(), 1000);
+        };
+
+        recognition.onerror = function (event) {
+          micBtn.innerHTML = "🎤 VOICE";
+          micBtn.style.background = "";
+          micBtn.disabled = false;
+          alert("Microphone error: " + event.error);
+        };
+
+        recognition.onend = function () {
+          micBtn.innerHTML = "🎤 VOICE";
+          micBtn.style.background = "";
+          micBtn.disabled = false;
+        };
+
+        recognition.start();
+      }
+
+      async function runCategorization(transactions) {
+        try {
+          const res = await fetch(`${VOICE_URL}/categorize`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ transactions }),
+          });
+          const data = await res.json();
+          if (data && data.transactions) {
+            currentTransactions = data.transactions;
+            renderCategoryCards(currentTransactions);
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      function renderCategoryCards(transactions) {
+        const container = document.getElementById("category-cards");
+        container.innerHTML = "";
+        let personalCount = 0;
+        let personalTotal = 0;
+
+        transactions.forEach((t, idx) => {
+          const div = document.createElement("div");
+          div.className = "card";
+
+          const amtClass =
+            t.type && t.type.toLowerCase() === "income" ? "income" : "expense";
+          const badgeColor =
+            CATEGORY_COLORS[t.category] || CATEGORY_COLORS["Other"];
+          const confColor = confidenceColor(t.confidence_score || 0);
+
+          if (t.category === "Personal") {
+            personalCount += 1;
+            personalTotal += Number(t.amount || 0);
+          }
+
+          div.innerHTML = `
+          <div class="card-desc">${t.description}</div>
+          <div class="card-bottom">
+            <div class="card-amount ${amtClass}">₹${t.amount || 0}</div>
+            <div class="badge" style="background:${badgeColor}">${t.category}</div>
+            <button class="edit-btn" id="edit-btn-${idx}" onclick="editCategory(${idx})">✎ Edit</button>
+          </div>
+          <div class="card-confidence" style="display:none;">
+            <div class="confidence-bar" style="width:${Math.min(100, (t.confidence_score || 0) * 100)}%; background:${confColor}"></div>
+          </div>
+          <select id="dropdown-${idx}" style="display:none;" onchange="saveCategory(${idx}, this.value)">
+            ${Object.keys(CATEGORY_COLORS)
+              .map(
+                (c) =>
+                  `<option value="${c}" ${c === t.category ? "selected" : ""}>${c}</option>`,
+              )
+              .join("")}
+          </select>
+        `;
+          container.appendChild(div);
+        });
+
+        const warn = document.getElementById("personal-warning");
+        if (personalCount > 0) {
+          warn.style.display = "block";
+          warn.innerText = `⚠️ ${personalCount} personal expense(s) detected totalling ₹${personalTotal} — may affect true business profit`;
+        } else {
+          warn.style.display = "none";
+        }
+        calculateSummary(currentTransactions);
+      }
+
+      function editCategory(idx) {
+        document.getElementById(`edit-btn-${idx}`).style.display = "none";
+        document.getElementById(`dropdown-${idx}`).style.display = "block";
+      }
+
+      function saveCategory(idx, newCategory) {
+        const tx = currentTransactions[idx];
+        tx.category = newCategory;
+        const badge = document.querySelector(
+          `#category-cards .card:nth-child(${idx + 1}) .badge`,
+        );
+        badge.innerText = newCategory;
+        badge.style.background =
+          CATEGORY_COLORS[newCategory] || CATEGORY_COLORS.Other;
+        document.getElementById(`edit-btn-${idx}`).style.display = "block";
+        document.getElementById(`dropdown-${idx}`).style.display = "none";
+
+        fetch(`${VOICE_URL}/correct-category`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            transaction_id: tx.id || "",
+            new_category: newCategory,
+            keyword: tx.description,
+          }),
+        })
+          .then((r) => r.json())
+          .then((data) => {
+            if (data && data.success) {
+              calculateSummary(currentTransactions);
+              loadCategorySummary();
+            }
+          })
+          .catch((e) => console.error(e));
+      }
+
+      function calculateSummary(transactions) {
+        document.getElementById("summary-label").innerText = "📌 Current Batch";
+        let rev = 0,
+          exp = 0;
+        transactions.forEach((t) => {
+          const amt = Number(t.amount) || 0;
+          if (t.type && t.type.toLowerCase() === "income") rev += amt;
+          else exp += amt;
+        });
+
+        const profit = rev - exp;
+        document
+          .getElementById("box-revenue")
+          .querySelector(".value").innerText = `₹${rev}`;
+        document
+          .getElementById("box-expenses")
+          .querySelector(".value").innerText = `₹${exp}`;
+        const profitBox = document.getElementById("box-profit");
+        profitBox.querySelector(".value").innerText = `₹${profit}`;
+
+        const insightDiv = document.getElementById("summary-insight");
+        if (profit > 0) {
+          insightDiv.innerText =
+            "✓ Good job! You earned more than you spent today.";
+          insightDiv.classList.add("show");
+        } else if (profit < 0) {
+          insightDiv.innerText =
+            "⚠️ You spent more than you earned. Keep an eye on expenses.";
+          insightDiv.classList.add("show");
+        } else {
+          insightDiv.innerText = "⚖️ You broke even today.";
+          insightDiv.classList.add("show");
+        }
+
+        document
+          .getElementById("box-balance")
+          .querySelector(".value").innerText = `₹${profit}`;
+      }
+
+      async function fetchOverallSummary() {
+        try {
+          const res = await fetch(`${BACKEND_URL}/transactions/summary`, {
+  headers: backendHeaders(),
+});
+          const d = await readApiResponse(res, "Unable to load transaction summary.");
+          if (d && d.success) {
+            const s = {
+  total_revenue: Number(d.data.total_revenue) || 0,
+  total_expenses: Number(d.data.total_expenses) || 0,
+  net_profit: Number(d.data.net_profit) || 0,
+};
+            s.net_profit = s.total_revenue - s.total_expenses;
+            document
+              .getElementById("box-revenue")
+              .querySelector(".value").innerText = `₹${s.total_revenue}`;
+            document
+              .getElementById("box-expenses")
+              .querySelector(".value").innerText = `₹${s.total_expenses}`;
+            const profitBox = document.getElementById("box-profit");
+            profitBox.querySelector(".value").innerText = `₹${s.net_profit}`;
+            document
+              .getElementById("box-balance")
+              .querySelector(".value").innerText = `₹${s.net_profit}`;
+            document.getElementById("summary-label").innerText =
+              "📅 All Time Total";
+
+            const insightDiv = document.getElementById("summary-insight");
+            if (s.net_profit > 0) {
+              insightDiv.innerText =
+                "✓ Good job! You earned more than you spent today.";
+            } else if (s.net_profit < 0) {
+              insightDiv.innerText =
+                "⚠️ You spent more than you earned. Keep an eye on expenses.";
+            } else {
+              insightDiv.innerText = "⚖️ You broke even today.";
+            }
+            insightDiv.classList.add("show");
+          }
+        } catch (e) {
+          console.error("Error loading transaction summary:", e);
+        }
+      }
+
+      function confidenceColor(score) {
+        if (!score) return "#ef4444";
+        if (score > 0.85) return "#10b981";
+        if (score >= 0.7) return "#f59e0b";
+        return "#ef4444";
+      }
+
+      async function loadCategorySummary() {
+  try {
+    const res = await fetch(`${BACKEND_URL}/categories/summary`, {
+      headers: backendHeaders(),
+    });
+
+    const data = await readApiResponse(
+      res,
+      "Unable to load category summary."
+    );
+
+    if (data && data.success) {
+      const summary = data.summary || {};
+
+      const entries = Object.entries(summary)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 6);
+
+      const max = entries.length ? entries[0][1] : 1;
+      const container = document.getElementById("summary-chart");
+      container.innerHTML = "";
+
+      entries.forEach(([cat, amt]) => {
+        const row = document.createElement("div");
+        row.className = "summary-row";
+
+        const label = document.createElement("div");
+        label.className = "summary-label";
+        label.innerText = cat;
+
+        const barWrap = document.createElement("div");
+        barWrap.className = "summary-bar";
+
+        const fill = document.createElement("div");
+        fill.className = "fill";
+        fill.style.width = (max ? (amt / max) * 100 : 0) + "%";
+        fill.style.background = CATEGORY_COLORS[cat] || "#60a5fa";
+
+        barWrap.appendChild(fill);
+
+        const amtDiv = document.createElement("div");
+        amtDiv.className = "summary-amount";
+        amtDiv.innerText = "₹" + amt;
+
+        row.appendChild(label);
+        row.appendChild(barWrap);
+        row.appendChild(amtDiv);
+
+        container.appendChild(row);
+      });
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+      document
+        .getElementById("save-all-btn")
+        .addEventListener("click", saveAllTransactions);
+
+      // Transaction Management Functions
+      let currentPage = 1;
+      let totalPages = 1;
+
+      async function loadTransactions(page = 1) {
+        try {
+          const search = document.getElementById("filter-search")?.value || "";
+          const category =
+            document.getElementById("filter-category")?.value || "";
+          const type = document.getElementById("filter-type")?.value || "";
+          const startDate =
+            document.getElementById("filter-start-date")?.value || "";
+          const endDate =
+            document.getElementById("filter-end-date")?.value || "";
+
+          const params = new URLSearchParams({
+            page: page,
+            page_size: 10,
+          });
+
+          if (search) params.append("search", search);
+          if (category) params.append("category", category);
+          if (type) params.append("type", type);
+          if (startDate) params.append("start_date", startDate);
+          if (endDate) params.append("end_date", endDate);
+
+          const res = await fetch(`${BACKEND_URL}/transactions?${params}`, {
+            headers: backendHeaders(),
+          });
+          const data = await readApiResponse(res, "Unable to load transactions.");
+
+          if (data.success) {
+            currentPage = data.page;
+            totalPages = data.total_pages;
+            renderTransactions(data.data);
+            renderPagination(data);
+            loadCategoriesForFilter();
+          }
+        } catch (e) {
+          console.error("Error loading transactions:", e);
+          document.getElementById("transactions-tbody").innerHTML = `
+            <tr>
+              <td colspan="6" style="padding: 40px; text-align: center; color: #ef4444;">
+                ❌ ${e.message || "Unable to load transactions."}
+              </td>
+            </tr>
+          `;
+        }
+      }
+
+      function renderTransactions(transactions) {
+        const tbody = document.getElementById("transactions-tbody");
+
+        if (!transactions || transactions.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="6" style="padding: 40px; text-align: center; color: #6b7280;">
+                No transactions found
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        tbody.innerHTML = transactions
+          .map(
+            (t) => `
+          <tr style="border-bottom: 1px solid #2d3748;">
+            <td style="padding: 12px; color: #e5e7eb;">${new Date(t.transaction_date).toLocaleDateString()}</td>
+            <td style="padding: 12px; color: #e5e7eb;">${t.description || "N/A"}</td>
+            <td style="padding: 12px;">
+              <span style="background: ${CATEGORY_COLORS[t.category] || "#6b7280"}; color: #000; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">
+                ${t.category}
+              </span>
+            </td>
+            <td style="padding: 12px;">
+              <span style="color: ${t.type === "income" ? "#10b981" : "#ef4444"}; font-weight: 600;">
+                ${t.type === "income" ? "📈 Income" : "📉 Expense"}
+              </span>
+            </td>
+            <td style="padding: 12px; text-align: right; color: ${t.type === "income" ? "#10b981" : "#ef4444"}; font-weight: 700;">
+              ₹${parseFloat(t.amount).toFixed(2)}
+            </td>
+            <td style="padding: 12px; text-align: center;">
+              <button onclick="deleteTransaction('${t.id}')" style="background: #ef4444; color: #fff; padding: 4px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                🗑️ Delete
+              </button>
+            </td>
+          </tr>
+        `,
+          )
+          .join("");
+      }
+
+      function renderPagination(data) {
+        const info = document.getElementById("transactions-info");
+        const buttons = document.getElementById("transactions-buttons");
+
+        info.innerHTML = `Showing page ${data.page} of ${data.total_pages} (${data.total_count} total)`;
+
+        buttons.innerHTML = "";
+
+        if (data.page > 1) {
+          const prevBtn = document.createElement("button");
+          prevBtn.innerText = "← Previous";
+          prevBtn.style.cssText =
+            "background: #1f2937; color: #fff; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer;";
+          prevBtn.onclick = () => loadTransactions(data.page - 1);
+          buttons.appendChild(prevBtn);
+        }
+
+        if (data.page < data.total_pages) {
+          const nextBtn = document.createElement("button");
+          nextBtn.innerText = "Next →";
+          nextBtn.style.cssText =
+            "background: #00d4aa; color: #000; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;";
+          nextBtn.onclick = () => loadTransactions(data.page + 1);
+          buttons.appendChild(nextBtn);
+        }
+      }
+
+      async function deleteTransaction(id) {
+        if (!confirm("Are you sure you want to delete this transaction?"))
+          return;
+
+        try {
+          const res = await fetch(`${BACKEND_URL}/transactions/${id}`, {
+            method: "DELETE",
+            headers: backendHeaders(),
+          });
+          const data = await readApiResponse(res, "Unable to delete transaction.");
+
+          if (data.success) {
+            alert("✓ Transaction deleted successfully");
+            loadTransactions(currentPage);
+            fetchOverallSummary();
+          } else {
+            alert(`❌ ${data.message || "Failed to delete transaction."}`);
+          }
+        } catch (e) {
+          console.error("Error deleting transaction:", e);
+          alert(`❌ ${e.message || "Error deleting transaction."}`);
+        }
+      }
+
+      async function exportCSV() {
+        try {
+          const search = document.getElementById("filter-search")?.value || "";
+          const category =
+            document.getElementById("filter-category")?.value || "";
+          const type = document.getElementById("filter-type")?.value || "";
+          const startDate =
+            document.getElementById("filter-start-date")?.value || "";
+          const endDate =
+            document.getElementById("filter-end-date")?.value || "";
+
+          const params = new URLSearchParams();
+          if (search) params.append("search", search);
+          if (category) params.append("category", category);
+          if (type) params.append("type", type);
+          if (startDate) params.append("start_date", startDate);
+          if (endDate) params.append("end_date", endDate);
+
+          const res = await fetch(`${BACKEND_URL}/transactions/export/csv?${params}`, {
+            headers: backendHeaders(),
+          });
+          const blob = await res.blob();
+          if (!res.ok) {
+            let data = {};
+            try { data = JSON.parse(await blob.text()); } catch (error) {}
+            throw new Error(apiErrorMessage(res, data, "CSV export failed."));
+          }
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "pocketcfo-transactions.csv";
+          link.click();
+          URL.revokeObjectURL(link.href);
+        } catch (e) {
+          console.error("Error exporting CSV:", e);
+          alert(`❌ ${e.message || "Error exporting CSV."}`);
+        }
+      }
+
+      async function exportPDF() {
+        try {
+          const search = document.getElementById("filter-search")?.value || "";
+          const category =
+            document.getElementById("filter-category")?.value || "";
+          const type = document.getElementById("filter-type")?.value || "";
+          const startDate =
+            document.getElementById("filter-start-date")?.value || "";
+          const endDate =
+            document.getElementById("filter-end-date")?.value || "";
+
+          const params = new URLSearchParams();
+          if (search) params.append("search", search);
+          if (category) params.append("category", category);
+          if (type) params.append("type", type);
+          if (startDate) params.append("start_date", startDate);
+          if (endDate) params.append("end_date", endDate);
+
+          const res = await fetch(`${BACKEND_URL}/transactions/export/pdf?${params}`, {
+            headers: backendHeaders(),
+          });
+          const blob = await res.blob();
+          if (!res.ok) {
+            let data = {};
+            try { data = JSON.parse(await blob.text()); } catch (error) {}
+            throw new Error(apiErrorMessage(res, data, "PDF export failed."));
+          }
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "pocketcfo-transactions.pdf";
+          link.click();
+          URL.revokeObjectURL(link.href);
+        } catch (e) {
+          console.error("Error exporting PDF:", e);
+          alert(`❌ ${e.message || "Error exporting PDF."}`);
+        }
+      }
+
+      async function loadCategoriesForFilter() {
+        try {
+          const res = await fetch(
+            `${BACKEND_URL}/transactions?page=1&page_size=100`,
+            { headers: backendHeaders() },
+          );
+          const data = await readApiResponse(res, "Unable to load categories.");
+
+          if (data.success) {
+            const categories = [
+              ...new Set(data.data.map((t) => t.category)),
+            ].sort();
+            const select = document.getElementById("filter-category");
+
+            if (select && select.options.length === 1) {
+              categories.forEach((cat) => {
+                const option = document.createElement("option");
+                option.value = cat;
+                option.innerText = cat;
+                select.appendChild(option);
+              });
+            }
+          }
+        } catch (e) {
+          console.error("Error loading categories:", e);
+        }
+      }
+
+      async function loadCategoriesPage() {
+        try {
+          const res = await fetch(
+            `${BACKEND_URL}/transactions?page=1&page_size=100`,
+            { headers: backendHeaders() },
+          );
+          const data = await readApiResponse(res, "Unable to load category totals.");
+
+          if (data.success) {
+            const categoryTotals = {};
+            data.data.forEach((t) => {
+              if (!categoryTotals[t.category]) {
+                categoryTotals[t.category] = { total: 0, count: 0 };
+              }
+              categoryTotals[t.category].total += parseFloat(t.amount);
+              categoryTotals[t.category].count += 1;
+            });
+
+            const grid = document.getElementById("categories-grid");
+            grid.innerHTML = Object.entries(categoryTotals)
+              .sort((a, b) => b[1].total - a[1].total)
+              .map(
+                ([cat, info]) => `
+                <div style="background: #1a1f3a; border: 1px solid #2d3748; border-radius: 12px; padding: 20px;">
+                  <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                    <div style="width: 40px; height: 40px; background: ${CATEGORY_COLORS[cat] || "#6b7280"}; border-radius: 8px;"></div>
+                    <div>
+                      <div style="font-weight: 700; color: #fff;">${cat}</div>
+                      <div style="color: #9ca3af; font-size: 12px;">${info.count} transactions</div>
+                    </div>
+                  </div>
+                  <div style="font-size: 24px; font-weight: 700; color: #00d4aa;">₹${info.total.toFixed(2)}</div>
+                </div>
+              `,
+              )
+              .join("");
+          }
+        } catch (e) {
+          console.error("Error loading categories:", e);
+        }
+      }
+
+      // Update save to use backend
+      async function saveAllTransactions() {
+  const btn = document.getElementById("save-all-btn");
+  const old = btn.innerText;
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Saving...';
+
+  try {
+    const transactions = currentTransactions.map((t) => {
+      const payload = {
+        description: t.description || t.merchant,
+        amount: String(t.amount),
+        type: t.type || "expense",
+        category: t.category,
+        transaction_date: t.transaction_date || t.date,
+        is_personal: t.category === "Personal",
+      };
+
+      if (!payload.transaction_date) {
+        throw new Error("Each transaction must include a transaction date.");
+      }
+
+      if (!payload.description) {
+        throw new Error(
+          "Each transaction must include a description or merchant."
+        );
+      }
+
+      return payload;
+    });
+
+    if (!transactions.length) {
+      throw new Error("No transactions to save.");
+    }
+
+    const res = await fetch(`${BACKEND_URL}/save-transactions`, {
+      method: "POST",
+      headers: {
+        ...backendHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        transactions: transactions,
+      }),
+    });
+
+    const data = await readApiResponse(
+      res,
+      "Unable to save transactions."
+    );
+
+    if (!data.success) {
+      throw new Error(
+        data.error || data.message || "Unable to save transactions."
+      );
+    }
+
+    btn.innerText = `✓ Saved ${data.count} transactions successfully!`;
+
+    await loadCategorySummary();
+    await fetchOverallSummary();
+
+  } catch (e) {
+    console.error(e);
+    btn.innerText = `✗ ${e.message || "Save failed. Try again."}`;
+  } finally {
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.innerText = old;
+    }, 2500);
+  }
+}
+
+      document.getElementById("auth-form").addEventListener("submit", login);
+      document.getElementById("auth-signup").addEventListener("click", signup);
+      document.getElementById("auth-logout").addEventListener("click", () => signOutUser("You have been logged out."));
+
+      window.onload = initializeAuth;
+
+      window.onParseResults = function (parsedTransactions) {
+        runCategorization(parsedTransactions);
+      };
+    </script>
+  </body>
+</html>
